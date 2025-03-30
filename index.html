@@ -1,0 +1,737 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>रेलवे ग्रुप डी रीजनिंग मॉक टेस्ट</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+        .container {
+            max-width: 900px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #fff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 5px;
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e74c3c;
+        }
+        .header h1 {
+            color: #e74c3c;
+            margin: 0;
+            font-size: 24px;
+        }
+        .timer {
+            background-color: #e74c3c;
+            color: white;
+            padding: 8px 15px;
+            border-radius: 5px;
+            font-weight: bold;
+            font-size: 18px;
+        }
+        .question-container {
+            margin-bottom: 30px;
+        }
+        .question {
+            font-weight: bold;
+            margin-bottom: 15px;
+            font-size: 18px;
+            color: #2c3e50;
+        }
+        .options {
+            margin-left: 20px;
+        }
+        .option {
+            margin-bottom: 10px;
+            padding: 8px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .option:hover {
+            background-color: #f0f0f0;
+        }
+        .option input {
+            margin-right: 10px;
+        }
+        .navigation {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+        }
+        .btn {
+            padding: 10px 20px;
+            background-color: #e74c3c;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+        .btn:hover {
+            background-color: #c0392b;
+        }
+        .btn:disabled {
+            background-color: #95a5a6;
+            cursor: not-allowed;
+        }
+        .progress-bar {
+            height: 10px;
+            background-color: #ecf0f1;
+            margin-bottom: 20px;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+        .progress {
+            height: 100%;
+            background-color: #e74c3c;
+            width: 0%;
+            transition: width 0.3s;
+        }
+        .result-container {
+            display: none;
+        }
+        .result-summary {
+            margin-bottom: 30px;
+        }
+        .result-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            padding: 10px;
+            background-color: #f9f9f9;
+            border-radius: 5px;
+        }
+        .correct {
+            background-color: #d4edda;
+            border-left: 5px solid #28a745;
+        }
+        .incorrect {
+            background-color: #f8d7da;
+            border-left: 5px solid #dc3545;
+        }
+        .unanswered {
+            background-color: #fff3cd;
+            border-left: 5px solid #ffc107;
+        }
+        .question-number {
+            display: inline-block;
+            width: 30px;
+            font-weight: bold;
+        }
+        .hidden {
+            display: none;
+        }
+        .question-navigation {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            margin-bottom: 20px;
+        }
+        .q-nav-btn {
+            width: 30px;
+            height: 30px;
+            border: 1px solid #ddd;
+            background-color: white;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+        .q-nav-btn.answered {
+            background-color: #d4edda;
+        }
+        .q-nav-btn.current {
+            border: 2px solid #e74c3c;
+            font-weight: bold;
+        }
+        .test-info {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            border-left: 5px solid #e74c3c;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>रेलवे ग्रुप डी रीजनिंग मॉक टेस्ट</h1>
+            <div class="timer" id="timer">50:00</div>
+        </div>
+
+        <div class="test-info">
+            <p><strong>निर्देश:</strong></p>
+            <ol>
+                <li>इस टेस्ट में 50 प्रश्न हैं</li>
+                <li>आपके पास 50 मिनट का समय है</li>
+                <li>प्रत्येक प्रश्न के 4 विकल्प हैं</li>
+                <li>समय समाप्त होने पर टेस्ट स्वतः सबमिट हो जाएगा</li>
+                <li>आप "अगला" और "पिछला" बटन का उपयोग कर सकते हैं</li>
+            </ol>
+        </div>
+
+        <div class="progress-bar">
+            <div class="progress" id="progress"></div>
+        </div>
+
+        <div class="question-navigation" id="question-nav">
+            <!-- Question navigation buttons will be added here by JavaScript -->
+        </div>
+
+        <div id="test-container">
+            <div id="question-display"></div>
+            <div class="navigation">
+                <button class="btn" id="prev-btn" disabled>पिछला</button>
+                <button class="btn" id="next-btn">अगला</button>
+                <button class="btn" id="submit-btn">सबमिट</button>
+            </div>
+        </div>
+
+        <div class="result-container" id="result-container">
+            <h2>आपका परिणाम</h2>
+            <div class="result-summary">
+                <div class="result-item">
+                    <span>कुल प्रश्न:</span>
+                    <span id="total-questions">50</span>
+                </div>
+                <div class="result-item correct">
+                    <span>सही उत्तर:</span>
+                    <span id="correct-answers">0</span>
+                </div>
+                <div class="result-item incorrect">
+                    <span>गलत उत्तर:</span>
+                    <span id="incorrect-answers">0</span>
+                </div>
+                <div class="result-item unanswered">
+                    <span>अनुत्तरित:</span>
+                    <span id="unanswered-questions">50</span>
+                </div>
+                <div class="result-item">
+                    <span>अंक:</span>
+                    <span id="score">0</span>
+                </div>
+            </div>
+
+            <h3>विस्तृत विश्लेषण</h3>
+            <div id="detailed-analysis"></div>
+
+            <h3>उत्तर कुंजी</h3>
+            <div id="answer-key"></div>
+
+            <button class="btn" id="retry-btn">फिर से प्रयास करें</button>
+        </div>
+    </div>
+
+    <script>
+        // Questions data - Railway Group D Reasoning questions in Hindi
+        const questions = [
+            {
+                question: "1. यदि 'कुर्सी' को 'मेज' कहा जाता है, 'मेज' को 'बेंच' कहा जाता है, 'बेंच' को 'अलमारी' कहा जाता है, तो हम किस पर बैठते हैं?",
+                options: ["कुर्सी", "मेज", "बेंच", "अलमारी"],
+                answer: 3
+            },
+            {
+                question: "2. निम्नलिखित में से विषम शब्द चुनिए:",
+                options: ["दिल्ली", "मुंबई", "चेन्नई", "गंगा"],
+                answer: 3
+            },
+            {
+                question: "3. एक श्रृंखला दी गई है: 2, 6, 12, 20, 30, ? अगली संख्या क्या होगी?",
+                options: ["40", "42", "44", "46"],
+                answer: 1
+            },
+            {
+                question: "4. यदि एक दर्पण को 'MNOP' पर रखा जाए, तो दर्पण प्रतिबिंब क्या होगा?",
+                options: ["MNOP", "PONM", "QONM", "ONMP"],
+                answer: 1
+            },
+            {
+                question: "5. A, B का भाई है। B, C की बहन है। C, D का पिता है। A का D से क्या संबंध है?",
+                options: ["चाचा", "भाई", "पिता", "दादा"],
+                answer: 0
+            },
+            {
+                question: "6. यदि 'PENCIL' को 'OHMBHK' लिखा जाता है, तो 'PAPER' को कैसे लिखा जाएगा?",
+                options: ["OZODQ", "OZOQD", "OZQDO", "OZODQ"],
+                answer: 1
+            },
+            {
+                question: "7. एक घड़ी में 3:15 बजे हैं, तो घंटे और मिनट की सुई के बीच कितने डिग्री का कोण बनेगा?",
+                options: ["0°", "7.5°", "15°", "30°"],
+                answer: 1
+            },
+            {
+                question: "8. निम्न में से कौन सा शब्द 'बगीचा' के समान है?",
+                options: ["फूल", "पेड़", "उद्यान", "पौधा"],
+                answer: 2
+            },
+            {
+                question: "9. यदि 5 मजदूर एक काम को 10 दिन में करते हैं, तो 10 मजदूर उसी काम को कितने दिन में करेंगे?",
+                options: ["2", "5", "10", "20"],
+                answer: 1
+            },
+            {
+                question: "10. एक व्यक्ति का चित्र देखकर एक महिला ने कहा, 'इसके भाई का पिता मेरे पिता का इकलौता बेटा है।' वह महिला उस व्यक्ति से कैसे संबंधित है?",
+                options: ["बहन", "माँ", "बेटी", "चाची"],
+                answer: 1
+            },
+            {
+                question: "11. निम्नलिखित संख्या श्रृंखला में प्रश्न चिह्न के स्थान पर क्या आएगा? 3, 7, 16, 35, ?, 153",
+                options: ["65", "74", "82", "94"],
+                answer: 1
+            },
+            {
+                question: "12. यदि 'लाल' को 'नीला' कहा जाता है, 'नीला' को 'हरा' कहा जाता है, 'हरा' को 'पीला' कहा जाता है, तो आकाश का रंग क्या है?",
+                options: ["लाल", "नीला", "हरा", "पीला"],
+                answer: 2
+            },
+            {
+                question: "13. एक पंक्ति में, राहुल बाएं से 15वें और दाएं से 10वें स्थान पर है। पंक्ति में कुल कितने व्यक्ति हैं?",
+                options: ["24", "25", "26", "27"],
+                answer: 0
+            },
+            {
+                question: "14. निम्न में से कौन सा विकल्प अन्य से भिन्न है?",
+                options: ["जीप", "टैक्सी", "कार", "साइकिल"],
+                answer: 3
+            },
+            {
+                question: "15. यदि 'X' का अर्थ '+', '+' का अर्थ '÷', '÷' का अर्थ '-', और '-' का अर्थ 'X' है, तो 10 X 5 + 2 ÷ 4 - 2 = ?",
+                options: ["5", "10", "15", "20"],
+                answer: 2
+            },
+            {
+                question: "16. एक निश्चित कोड में, 'COMPUTER' को 'RETUPMOC' लिखा जाता है। उसी कोड में 'KEYBOARD' को कैसे लिखा जाएगा?",
+                options: ["DRAOBYEK", "DRAOBYKE", "DROABYEK", "DRAOBEYK"],
+                answer: 0
+            },
+            {
+                question: "17. यदि 1 जनवरी को सोमवार था, तो उस वर्ष का पहला रविवार कौन सी तारीख को था? (लीप वर्ष नहीं)",
+                options: ["1 जनवरी", "7 जनवरी", "31 दिसंबर", "6 जनवरी"],
+                answer: 3
+            },
+            {
+                question: "18. निम्नलिखित शब्दों को सार्थक क्रम में व्यवस्थित करें: 1. फूल 2. फल 3. कली 4. तना 5. जड़",
+                options: ["5,4,3,1,2", "5,4,1,3,2", "4,5,3,1,2", "5,3,4,1,2"],
+                answer: 0
+            },
+            {
+                question: "19. एक व्यक्ति उत्तर की ओर 10 किमी चलता है, फिर दाएं मुड़कर 5 किमी चलता है, फिर दाएं मुड़कर 10 किमी चलता है। वह अपने प्रारंभिक बिंदु से किस दिशा में है?",
+                options: ["पूर्व", "पश्चिम", "उत्तर", "दक्षिण"],
+                answer: 3
+            },
+            {
+                question: "20. यदि 'A' का अर्थ '+', 'B' का अर्थ '-', 'C' का अर्थ '×', और 'D' का अर्थ '÷' है, तो 4 A 6 B 8 C 2 D 4 = ?",
+                options: ["6", "8", "10", "12"],
+                answer: 1
+            },
+            {
+                question: "21. निम्न में से कौन सा शब्द 'पुस्तक' और 'पुस्तकालय' के बीच के संबंध के समान है?",
+                options: ["कपड़ा : कपड़े की दुकान", "गाड़ी : गैराज", "पैसा : बैंक", "दवा : अस्पताल"],
+                answer: 2
+            },
+            {
+                question: "22. एक निश्चित कोड में, 'TRAIN' को 'FGHQR' लिखा जाता है। उसी कोड में 'PLANE' को कैसे लिखा जाएगा?",
+                options: ["KYZMV", "KYZMU", "KYZMW", "KYXMV"],
+                answer: 0
+            },
+            {
+                question: "23. यदि 20% of 30, 30 का x% के बराबर है, तो x का मान क्या है?",
+                options: ["20", "30", "40", "50"],
+                answer: 0
+            },
+            {
+                question: "24. निम्नलिखित में से कौन सा विकल्प अन्य से भिन्न है?",
+                options: ["सूरज", "चाँद", "पृथ्वी", "तारा"],
+                answer: 2
+            },
+            {
+                question: "25. एक श्रृंखला दी गई है: Z, X, V, T, R, ? अगला अक्षर क्या होगा?",
+                options: ["P", "Q", "O", "N"],
+                answer: 0
+            },
+            {
+                question: "26. यदि 'सुबह' और 'शाम' का संबंध 'दिन' से है, तो 'सुबह' और 'दोपहर' का संबंध किससे है?",
+                options: ["रात", "दिन", "सप्ताह", "महीना"],
+                answer: 1
+            },
+            {
+                question: "27. एक पिता और पुत्र की आयु का योग 50 वर्ष है। 5 वर्ष पहले, पिता की आयु पुत्र की आयु की 7 गुना थी। पिता की वर्तमान आयु कितनी है?",
+                options: ["35", "40", "45", "50"],
+                answer: 1
+            },
+            {
+                question: "28. निम्नलिखित शब्दों को शब्दकोश क्रम में व्यवस्थित करें: 1. Reason 2. Rebel 3. Ready 4. Realize 5. Record",
+                options: ["2,3,1,4,5", "3,2,1,4,5", "2,3,4,1,5", "3,2,4,1,5"],
+                answer: 1
+            },
+            {
+                question: "29. यदि 'FRIEND' को 'HUMJTK' लिखा जाता है, तो 'ENEMY' को कैसे लिखा जाएगा?",
+                options: ["GQHQK", "GPHQK", "GQGPK", "GPHQJ"],
+                answer: 2
+            },
+            {
+                question: "30. एक व्यक्ति की ओर इशारा करते हुए, सुमन ने कहा, 'वह मेरे पिता के इकलौते भाई का बेटा है।' वह व्यक्ति सुमन से कैसे संबंधित है?",
+                options: ["भाई", "चचेरा भाई", "पिता", "चाचा"],
+                answer: 0
+            },
+            {
+                question: "31. निम्नलिखित संख्या श्रृंखला में प्रश्न चिह्न के स्थान पर क्या आएगा? 2, 5, 10, 17, 26, ?",
+                options: ["35", "36", "37", "38"],
+                answer: 2
+            },
+            {
+                question: "32. यदि 'P' का अर्थ '+', 'Q' का अर्थ '-', 'R' का अर्थ '×', और 'S' का अर्थ '÷' है, तो 18 R 12 S 4 P 5 Q 6 = ?",
+                options: ["53", "54", "55", "56"],
+                answer: 0
+            },
+            {
+                question: "33. निम्न में से कौन सा विकल्प अन्य से भिन्न है?",
+                options: ["आँख", "कान", "नाक", "गर्दन"],
+                answer: 3
+            },
+            {
+                question: "34. एक निश्चित कोड में, 'DELHI' को 'CDKHG' लिखा जाता है। उसी कोड में 'MUMBAI' को कैसे लिखा जाएगा?",
+                options: ["LTLZAH", "LTLAZH", "LTLAAH", "LTLZBH"],
+                answer: 0
+            },
+            {
+                question: "35. यदि एक दर्पण को 'MATHS' के सामने रखा जाए, तो दर्पण प्रतिबिंब क्या होगा?",
+                options: ["SHTAM", "MHTAS", "SHTMA", "MATHS"],
+                answer: 0
+            },
+            {
+                question: "36. एक कक्षा में, अरुण शीर्ष से 18वें और नीचे से 23वें स्थान पर है। कक्षा में कुल कितने छात्र हैं?",
+                options: ["40", "41", "42", "43"],
+                answer: 0
+            },
+            {
+                question: "37. निम्नलिखित शब्दों को सार्थक क्रम में व्यवस्थित करें: 1. सजा 2. गिरफ्तारी 3. अपराध 4. न्यायालय 5. जाँच",
+                options: ["3,2,5,4,1", "3,2,4,5,1", "2,3,5,4,1", "3,5,2,4,1"],
+                answer: 0
+            },
+            {
+                question: "38. यदि 'TABLE' को 'ZYDCJ' लिखा जाता है, तो 'CHAIR' को कैसे लिखा जाएगा?",
+                options: ["XFDPM", "XEDPM", "XEDPN", "XFDQM"],
+                answer: 1
+            },
+            {
+                question: "39. एक व्यक्ति पूर्व की ओर 5 किमी चलता है, फिर बाएं मुड़कर 3 किमी चलता है, फिर बाएं मुड़कर 5 किमी चलता है। वह अपने प्रारंभिक बिंदु से कितनी दूर है?",
+                options: ["3 किमी", "5 किमी", "6 किमी", "7 किमी"],
+                answer: 0
+            },
+            {
+                question: "40. यदि 'DOG' को 'CAT' कहा जाता है, 'CAT' को 'LION' कहा जाता है, 'LION' को 'ELEPHANT' कहा जाता है, तो जंगल का राजा कौन है?",
+                options: ["DOG", "CAT", "LION", "ELEPHANT"],
+                answer: 2
+            },
+            {
+                question: "41. निम्नलिखित संख्या श्रृंखला में प्रश्न चिह्न के स्थान पर क्या आएगा? 1, 1, 2, 3, 5, 8, 13, ?",
+                options: ["18", "19", "20", "21"],
+                answer: 3
+            },
+            {
+                question: "42. यदि 'PEN' को 'OXM' लिखा जाता है, 'INK' को 'HMG' लिखा जाता है, तो 'PAPER' को कैसे लिखा जाएगा?",
+                options: ["OZODQ", "OZOQD", "OZQDO", "OZODQ"],
+                answer: 1
+            },
+            {
+                question: "43. निम्न में से कौन सा विकल्प अन्य से भिन्न है?",
+                options: ["सेब", "आम", "टमाटर", "संतरा"],
+                answer: 2
+            },
+            {
+                question: "44. एक निश्चित कोड में, 'COMPUTER' को 'PMOCRETU' लिखा जाता है। उसी कोड में 'KEYBOARD' को कैसे लिखा जाएगा?",
+                options: ["YEKADROB", "YEKADORB", "YEKARDOB", "YEKADROB"],
+                answer: 0
+            },
+            {
+                question: "45. यदि 'A' का अर्थ '+', 'B' का अर्थ '-', 'C' का अर्थ '×', और 'D' का अर्थ '÷' है, तो 6 C 4 A 12 D 3 B 5 = ?",
+                options: ["25", "27", "29", "31"],
+                answer: 2
+            },
+            {
+                question: "46. निम्नलिखित में से कौन सा शब्द 'कोयला' और 'हीरा' के बीच के संबंध के समान है?",
+                options: ["लकड़ी : कागज", "दूध : दही", "अंडा : चूजा", "कपास : कपड़ा"],
+                answer: 3
+            },
+            {
+                question: "47. एक श्रृंखला दी गई है: A, D, G, J, ? अगला अक्षर क्या होगा?",
+                options: ["K", "L", "M", "N"],
+                answer: 2
+            },
+            {
+                question: "48. यदि 'MOUSE' को 'PRQZH' लिखा जाता है, तो 'KEYBOARD' को कैसे लिखा जाएगा?",
+                options: ["NHBENDUG", "NHBEDNUG", "NHBENDGU", "NHBEDNGU"],
+                answer: 1
+            },
+            {
+                question: "49. एक पंक्ति में, राजू बाएं से 12वें और दाएं से 15वें स्थान पर है। पंक्ति में कुल कितने व्यक्ति हैं?",
+                options: ["25", "26", "27", "28"],
+                answer: 1
+            },
+            {
+                question: "50. यदि 'PENCIL' को '167' और 'PAPER' को '123' लिखा जाता है, तो 'COPY' को कैसे लिखा जाएगा?",
+                options: ["67", "68", "69", "70"],
+                answer: 0
+            }
+        ];
+
+        // Test variables
+        let currentQuestion = 0;
+        let userAnswers = new Array(questions.length).fill(null);
+        let timeLeft = 50 * 60; // 50 minutes in seconds
+        let timer;
+        let testSubmitted = false;
+
+        // DOM elements
+        const questionDisplay = document.getElementById('question-display');
+        const prevBtn = document.getElementById('prev-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const submitBtn = document.getElementById('submit-btn');
+        const timerDisplay = document.getElementById('timer');
+        const progressBar = document.getElementById('progress');
+        const questionNav = document.getElementById('question-nav');
+        const testContainer = document.getElementById('test-container');
+        const resultContainer = document.getElementById('result-container');
+        const retryBtn = document.getElementById('retry-btn');
+        const detailedAnalysis = document.getElementById('detailed-analysis');
+        const answerKey = document.getElementById('answer-key');
+
+        // Initialize the test
+        function initTest() {
+            // Create question navigation buttons
+            questions.forEach((_, index) => {
+                const btn = document.createElement('button');
+                btn.className = 'q-nav-btn';
+                btn.textContent = index + 1;
+                btn.onclick = () => navigateToQuestion(index);
+                questionNav.appendChild(btn);
+            });
+
+            // Start timer
+            timer = setInterval(updateTimer, 1000);
+            
+            // Display first question
+            displayQuestion();
+        }
+
+        // Display current question
+        function displayQuestion() {
+            // Update navigation buttons
+            prevBtn.disabled = currentQuestion === 0;
+            nextBtn.disabled = currentQuestion === questions.length - 1;
+            
+            // Update question navigation buttons
+            const navButtons = questionNav.getElementsByClassName('q-nav-btn');
+            for (let i = 0; i < navButtons.length; i++) {
+                navButtons[i].classList.remove('current');
+                if (userAnswers[i] !== null) {
+                    navButtons[i].classList.add('answered');
+                } else {
+                    navButtons[i].classList.remove('answered');
+                }
+            }
+            navButtons[currentQuestion].classList.add('current');
+            
+            // Display question
+            const q = questions[currentQuestion];
+            let html = `
+                <div class="question">${q.question}</div>
+                <div class="options">
+            `;
+            
+            q.options.forEach((option, index) => {
+                const isChecked = userAnswers[currentQuestion] === index ? 'checked' : '';
+                html += `
+                    <div class="option">
+                        <input type="radio" name="answer" id="option${index}" value="${index}" ${isChecked}>
+                        <label for="option${index}">${option}</label>
+                    </div>
+                `;
+            });
+            
+            html += `</div>`;
+            questionDisplay.innerHTML = html;
+            
+            // Update progress bar
+            progressBar.style.width = `${((currentQuestion + 1) / questions.length) * 100}%`;
+            
+            // Add event listeners to radio buttons
+            document.querySelectorAll('input[name="answer"]').forEach(radio => {
+                radio.addEventListener('change', (e) => {
+                    userAnswers[currentQuestion] = parseInt(e.target.value);
+                    questionNav.getElementsByClassName('q-nav-btn')[currentQuestion].classList.add('answered');
+                });
+            });
+        }
+
+        // Navigate to a specific question
+        function navigateToQuestion(index) {
+            currentQuestion = index;
+            displayQuestion();
+        }
+
+        // Update timer
+        function updateTimer() {
+            timeLeft--;
+            
+            if (timeLeft <= 0) {
+                clearInterval(timer);
+                submitTest();
+                return;
+            }
+            
+            const minutes = Math.floor(timeLeft / 60);
+            const seconds = timeLeft % 60;
+            timerDisplay.textContent = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+        }
+
+        // Submit the test
+        function submitTest() {
+            if (testSubmitted) return;
+            testSubmitted = true;
+            
+            clearInterval(timer);
+            
+            // Calculate results
+            let correct = 0;
+            let incorrect = 0;
+            let unanswered = 0;
+            
+            questions.forEach((q, index) => {
+                if (userAnswers[index] === null) {
+                    unanswered++;
+                } else if (userAnswers[index] === q.answer) {
+                    correct++;
+                } else {
+                    incorrect++;
+                }
+            });
+            
+            // Display results
+            document.getElementById('total-questions').textContent = questions.length;
+            document.getElementById('correct-answers').textContent = correct;
+            document.getElementById('incorrect-answers').textContent = incorrect;
+            document.getElementById('unanswered-questions').textContent = unanswered;
+            document.getElementById('score').textContent = correct;
+            
+            // Display detailed analysis
+            detailedAnalysis.innerHTML = '';
+            questions.forEach((q, index) => {
+                const div = document.createElement('div');
+                div.className = 'result-item';
+                
+                if (userAnswers[index] === null) {
+                    div.classList.add('unanswered');
+                } else if (userAnswers[index] === q.answer) {
+                    div.classList.add('correct');
+                } else {
+                    div.classList.add('incorrect');
+                }
+                
+                div.innerHTML = `
+                    <span class="question-number">${index + 1}.</span>
+                    <span>${q.question}</span>
+                    <div style="margin-left: 30px; margin-top: 5px;">
+                        <strong>आपका उत्तर:</strong> ${userAnswers[index] !== null ? q.options[userAnswers[index]] : 'अनुत्तरित'} <br>
+                        <strong>सही उत्तर:</strong> ${q.options[q.answer]}
+                    </div>
+                `;
+                detailedAnalysis.appendChild(div);
+            });
+            
+            // Display answer key
+            answerKey.innerHTML = '';
+            for (let i = 0; i < questions.length; i += 5) {
+                const row = document.createElement('div');
+                row.style.display = 'flex';
+                row.style.justifyContent = 'space-between';
+                row.style.marginBottom = '10px';
+                
+                for (let j = 0; j < 5 && (i + j) < questions.length; j++) {
+                    const index = i + j;
+                    const col = document.createElement('div');
+                    col.innerHTML = `
+                        <strong>${index + 1}.</strong> ${String.fromCharCode(65 + questions[index].answer)}
+                    `;
+                    row.appendChild(col);
+                }
+                
+                answerKey.appendChild(row);
+            }
+            
+            // Show results and hide test
+            testContainer.style.display = 'none';
+            resultContainer.style.display = 'block';
+        }
+
+        // Event listeners
+        prevBtn.addEventListener('click', () => {
+            if (currentQuestion > 0) {
+                currentQuestion--;
+                displayQuestion();
+            }
+        });
+
+        nextBtn.addEventListener('click', () => {
+            if (currentQuestion < questions.length - 1) {
+                currentQuestion++;
+                displayQuestion();
+            }
+        });
+
+        submitBtn.addEventListener('click', () => {
+            if (confirm('क्या आप वाकई टेस्ट सबमिट करना चाहते हैं?')) {
+                submitTest();
+            }
+        });
+
+        retryBtn.addEventListener('click', () => {
+            // Reset test
+            currentQuestion = 0;
+            userAnswers = new Array(questions.length).fill(null);
+            timeLeft = 50 * 60;
+            testSubmitted = false;
+            
+            // Clear timer and restart
+            clearInterval(timer);
+            timer = setInterval(updateTimer, 1000);
+            
+            // Reset UI
+            timerDisplay.textContent = '50:00';
+            progressBar.style.width = '0%';
+            
+            // Remove answered class from nav buttons
+            const navButtons = questionNav.getElementsByClassName('q-nav-btn');
+            for (let i = 0; i < navButtons.length; i++) {
+                navButtons[i].classList.remove('answered');
+            }
+            
+            // Show test and hide results
+            testContainer.style.display = 'block';
+            resultContainer.style.display = 'none';
+            
+            // Display first question
+            displayQuestion();
+        });
+
+        // Initialize the test when page loads
+        window.onload = initTest;
+    </script>
+</body>
+</html>)
